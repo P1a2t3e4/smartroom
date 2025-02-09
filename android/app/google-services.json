@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "321362246067",
+    "project_id": "smartroom-31b43",
+    "storage_bucket": "smartroom-31b43.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:321362246067:android:c8e552893f002e5608b3c6",
+        "android_client_info": {
+          "package_name": "com.example.capstone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCN7zqhWyCdg4juPJZKd8WxM9W4r-pId88"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:321362246067:android:2407b272964adbd408b3c6",
+        "android_client_info": {
+          "package_name": "com.example.smartroom"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCN7zqhWyCdg4juPJZKd8WxM9W4r-pId88"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
