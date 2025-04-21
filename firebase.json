@@ -1,1 +1,35 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"smartroom-31b43","appId":"1:321362246067:android:2407b272964adbd408b3c6","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"smartroom-31b43","configurations":{"android":"1:321362246067:android:2407b272964adbd408b3c6","web":"1:321362246067:web:740f994f8909b0e308b3c6"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "smartroom-31b43",
+          "appId": "1:321362246067:android:2407b272964adbd408b3c6",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "smartroom-31b43",
+          "configurations": {
+            "android": "1:321362246067:android:2407b272964adbd408b3c6",
+            "web": "1:321362246067:web:740f994f8909b0e308b3c6"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
+}

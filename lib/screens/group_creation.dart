@@ -1,13 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class GroupCreationScreen extends StatelessWidget {
   const GroupCreationScreen({super.key});
 
+  Future<void> _createGroup(BuildContext context, String hostel, String roomNumber) async {
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+
+    try {
+      // Generate a unique group code
+      String groupCode = "Room${DateTime.now().millisecondsSinceEpoch}";
+
+      // Save group details in Firestore
+      await _firestore.collection('groups').doc(groupCode).set({
+        'groupCode': groupCode,
+        'hostel': hostel,
+        'roomNumber': roomNumber,
+        'createdAt': DateTime.now(),
+      });
+
+      // Add the current user as a member of the group
+      User? user = _auth.currentUser;
+      if (user != null) {
+        await _firestore.collection('groups').doc(groupCode).collection('members').doc(user.uid).set({
+          'userId': user.uid,
+          'userName': user.displayName ?? "Unknown User",
+        });
+      }
+
+      // Show success dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Group Created"),
+          content: Text("Your group code is: $groupCode"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Close"),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      // Handle errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to create group: ${e.toString()}")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    String? selectedHostel;
+    final TextEditingController _roomNumberController = TextEditingController();
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create Group"),
+        title: const Text("Create Group"),
         centerTitle: true,
         backgroundColor: Colors.blue.shade700,
       ),
@@ -62,11 +116,12 @@ class GroupCreationScreen extends StatelessWidget {
                       ),
                     ],
                     onChanged: (value) {
-                      // Handle hostel selection
+                      selectedHostel = value;
                     },
                   ),
                   const SizedBox(height: 16),
                   TextField(
+                    controller: _roomNumberController,
                     decoration: InputDecoration(
                       labelText: 'Room Number',
                       border: OutlineInputBorder(
@@ -79,23 +134,13 @@ class GroupCreationScreen extends StatelessWidget {
                   Center(
                     child: ElevatedButton(
                       onPressed: () {
-                        // Generate unique group code
-                        String groupCode = "Room2024A"; // Example
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text("Group Created"),
-                            content: Text("Your group code is: $groupCode"),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("Close"),
-                              ),
-                            ],
-                          ),
-                        );
+                        if (selectedHostel != null && _roomNumberController.text.isNotEmpty) {
+                          _createGroup(context, selectedHostel!, _roomNumberController.text);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Please fill all fields!")),
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue.shade700,

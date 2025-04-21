@@ -66,4 +66,5 @@ class DefaultFirebaseOptions {
     projectId: 'smartroom-31b43',
     storageBucket: 'smartroom-31b43.firebasestorage.app',
   );
+
 }

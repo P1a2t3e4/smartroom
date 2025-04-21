@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart'; // Import Firebase core package
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:smartroom/firebase_options.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
-import 'screens/feedback_screen.dart';
 import 'screens/conflict_reporting_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/ra_ratings_screen.dart';
 import 'screens/sign_up_screen.dart';
-import 'screens/join_group.dart';
 import 'screens/group_creation.dart';
+import 'screens/roommate_agreement_screen.dart';
+import 'screens/tasks_screen.dart';
+import 'screens/duty_roster.dart';
+import 'screens/ra_dashboard.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensures widgets are initialized
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -21,6 +25,21 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
+  Future<String?> getUserRole() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userDoc.exists) {
+        return userDoc.data()?['userType']?.toString();
+      }
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,16 +54,52 @@ class MyApp extends StatelessWidget {
         ),
       ),
       initialRoute: '/',
-      routes: {
-        '/': (context) => const LoginScreen(),
-        '/dashboard': (context) => const DashboardScreen(),
-        '/feedback': (context) => const FeedbackScreen(),
-        '/conflict': (context) => const ConflictReportingScreen(),
-        '/notifications': (context) => const NotificationsScreen(),
-        '/ra_ratings': (context) => const RaRatingScreen(),
-        '/signUp': (context) => const SignUpScreen(),
-        '/createGroup': (context) => const GroupCreationScreen(),
-        '/joinGroup': (context) => const JoinGroupScreen(),
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/':
+            return MaterialPageRoute(
+              builder: (context) => LoginScreen(
+                onLoginSuccess: ({required String userType}) {
+                  Navigator.pushReplacementNamed(
+                    context,
+                    userType == 'RA' ? '/raDashboard' : '/dashboard',
+                  );
+                },
+              ),
+            );
+          case '/dashboard':
+            return MaterialPageRoute(builder: (context) => const DashboardScreen());
+          case '/raDashboard':
+            return MaterialPageRoute(builder: (context) => const RADashboard());
+          case '/conflict':
+            return MaterialPageRoute(builder: (context) => const ConflictReportingScreen());
+          case '/notifications':
+            return MaterialPageRoute(builder: (context) => const NotificationsScreen());
+          case '/ra_ratings':
+            return MaterialPageRoute(builder: (context) => const RaRatingScreen());
+          case '/signUp':
+            return MaterialPageRoute(builder: (context) => const SignUpScreen());
+          case '/createGroup':
+            return MaterialPageRoute(builder: (context) => const GroupCreationScreen());
+          case '/rm_agreement':
+            return MaterialPageRoute(builder: (context) => const RoommateAgreementForm());
+          case '/tasks':
+            return MaterialPageRoute(builder: (context) => const TasksPage());
+          case '/duty_roster':
+            return MaterialPageRoute(builder: (context) => const DutyRosterPage());
+
+          default:
+            return MaterialPageRoute(
+              builder: (context) => LoginScreen(
+                onLoginSuccess: ({required String userType}) {
+                  Navigator.pushReplacementNamed(
+                    context,
+                    userType == 'RA' ? '/raDashboard' : '/dashboard',
+                  );
+                },
+              ),
+            );
+        }
       },
     );
   }
