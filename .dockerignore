@@ -1,0 +1,9 @@
+.dart_tool/
+.git/
+.github/
+.gitignore
+.idea/
+.vscode/
+build/
+.packages
+*.iml
