@@ -5,6 +5,10 @@ FROM ghcr.io/cirruslabs/flutter:3.19.3
 RUN groupadd -r flutter && useradd -r -g flutter flutter
 RUN mkdir -p /app && chown -R flutter:flutter /app
 
+# Fix permissions for the Flutter SDK
+RUN git config --global --add safe.directory /sdks/flutter
+RUN chmod -R 777 /sdks/flutter || true
+
 # Set working directory
 WORKDIR /app
 
@@ -20,8 +24,8 @@ RUN flutter pub get
 # Copy the rest of the project files
 COPY --chown=flutter:flutter . .
 
-# Build your project
-RUN flutter build [your-build-target]
+# Build your project for Android
+RUN flutter build apk --release
 
-# Command to run your app
+# Command to run your app (though typically you'd install the APK on a device)
 CMD ["flutter", "run", "--release"]
