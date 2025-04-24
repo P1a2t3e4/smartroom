@@ -1,27 +1,24 @@
-# Use a Flutter image with a newer SDK version
-FROM ghcr.io/cirruslabs/flutter:3.19.3
+# Use Flutter 3.29.3 which includes Dart SDK 3.5.4 or higher
+FROM ghcr.io/cirruslabs/flutter:3.29.3
 
-# Fix git permissions and set up proper pub cache
-RUN git config --global --add safe.directory /sdks/flutter && \
-    mkdir -p /home/flutter/.pub-cache && \
-    chown -R flutter:flutter /home/flutter/.pub-cache && \
-    chmod -R 777 /home/flutter/.pub-cache
-
-# Set pub cache environment variables
-ENV PUB_CACHE=/home/flutter/.pub-cache
-ENV PATH="$PATH:$PUB_CACHE/bin"
+# Fix permissions for the Flutter SDK
+RUN git config --global --add safe.directory /sdks/flutter
 
 # Set working directory
 WORKDIR /app
 
-# Copy project files with proper permissions
-COPY --chown=flutter:flutter pubspec.yaml pubspec.lock ./
+# Copy project files
+COPY pubspec.yaml pubspec.lock ./
 
 # Install dependencies
 RUN flutter pub get
 
-# Copy the rest of the project files with proper permissions
-COPY --chown=flutter:flutter . .
+# Copy the rest of the project files
+COPY . .
+
+# Clear any local Java home settings and set up for Android build
+RUN rm -f ~/.gradle/gradle.properties || true
+RUN mkdir -p ~/.gradle && echo "org.gradle.java.home=/usr/lib/jvm/java-11-openjdk-amd64" > ~/.gradle/gradle.properties
 
 # Build your project for Android
 RUN flutter build apk --release
