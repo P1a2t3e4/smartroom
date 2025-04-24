@@ -1,35 +1,32 @@
-# Use Flutter image
+# Use Flutter 3.29.3 which includes Dart SDK 3.5.4 or higher
 FROM ghcr.io/cirruslabs/flutter:3.29.3
 
-# 1. Fix permissions and setup non-root user FIRST
-RUN git config --global --add safe.directory /sdks/flutter && \
-    useradd -m flutteruser && \
-    mkdir -p /app && \
-    chown -R flutteruser:flutteruser /app
+# Fix permissions for the Flutter SDK
+RUN git config --global --add safe.directory /sdks/flutter
 
-# 2. Set working directory and switch user
+# Install JDK 17 (matches your Android Studio)
+RUN apt-get update && \
+    apt-get install -y openjdk-17-jdk && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory
 WORKDIR /app
-USER flutteruser
 
-# 3. Set environment variables
-ENV PUB_CACHE=/home/flutteruser/.pub-cache
-ENV PATH="$PATH:$PUB_CACHE/bin"
+# Copy project files
+COPY pubspec.yaml pubspec.lock ./
 
-# 4. Copy files with correct permissions
-COPY --chown=flutteruser:flutteruser pubspec.yaml pubspec.lock ./
-
-# 5. Get dependencies
+# Install dependencies
 RUN flutter pub get
 
-# 6. Copy remaining files
-COPY --chown=flutteruser:flutteruser . .
+# Copy the rest of the project files
+COPY . .
 
-# 7. Fix Java compatibility (critical fix)
+# Configure Gradle with JDK 17 path
 RUN mkdir -p ~/.gradle && \
-    echo "org.gradle.java.home=$(dirname $(dirname $(readlink -f $(which javac))))" > ~/.gradle/gradle.properties && \
-    echo "android.recommendedJavaVersion=11" >> ~/.gradle/gradle.properties
+    echo "org.gradle.java.home=$(dirname $(dirname $(readlink -f $(which javac))))" > ~/.gradle/gradle.properties
 
-# 8. Build with increased memory limits
-RUN flutter build apk --release --dart-define=FLUTTER_BUILD_MODE=release \
-    --dart-define=FLUTTER_BUILD_DATE=$(date +%Y-%m-%d) \
-    -v
+# Build your project for Android
+RUN flutter build apk --release
+
+# Command to run your app
+CMD ["flutter", "run", "--release"]
