@@ -18,7 +18,8 @@ COPY . .
 
 # Clear any local Java home settings and set up for Android build
 RUN rm -f ~/.gradle/gradle.properties || true
-RUN mkdir -p ~/.gradle && echo "org.gradle.java.home=/usr/lib/jvm/java-11-openjdk-amd64" > ~/.gradle/gradle.properties
+RUN mkdir -p ~/.gradle && \
+    echo "org.gradle.java.home=$(dirname $(dirname $(readlink -f $(which javac))))" > ~/.gradle/gradle.properties
 
 # Build your project for Android
 RUN flutter build apk --release
