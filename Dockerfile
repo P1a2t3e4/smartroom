@@ -13,12 +13,14 @@ RUN apt-get update && \
     apt-get install -y openjdk-17-jdk && \
     rm -rf /var/lib/apt/lists/*
 
-# Switch back to non-root user for Flutter operations
+# Fix the Git ownership issue
+RUN git config --global --add safe.directory /sdks/flutter
+
+# Switch to flutteruser
 USER flutteruser
 
-# Copy pubspec files first (if pubspec.lock exists)
+# Copy pubspec files first
 COPY --chown=flutteruser:flutteruser pubspec.yaml ./
-# Use a conditional check for pubspec.lock (it may not exist yet)
 COPY --chown=flutteruser:flutteruser pubspec.lock* ./
 
 # Get dependencies
