@@ -8,7 +8,6 @@ RUN useradd -m flutteruser && \
 WORKDIR /home/flutteruser/app
 
 # Install JDK 17 as root user
-# This is the critical change - we need to install packages as root
 USER root
 RUN apt-get update && \
     apt-get install -y openjdk-17-jdk && \
@@ -17,10 +16,18 @@ RUN apt-get update && \
 # Switch back to non-root user for Flutter operations
 USER flutteruser
 
-# Rest of your Dockerfile remains the same
-COPY pubspec.yaml pubspec.lock ./
+# Copy pubspec files first (if pubspec.lock exists)
+COPY --chown=flutteruser:flutteruser pubspec.yaml ./
+# Use a conditional check for pubspec.lock (it may not exist yet)
+COPY --chown=flutteruser:flutteruser pubspec.lock* ./
+
+# Get dependencies
 RUN flutter pub get
-COPY . .
+
+# Copy the rest of the application
+COPY --chown=flutteruser:flutteruser . .
+
+# Build APK
 RUN flutter build apk --release
 
 FROM alpine:latest
