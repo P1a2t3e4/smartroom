@@ -1,26 +1,31 @@
 FROM ghcr.io/cirruslabs/flutter:3.29.3 AS builder
 
+# Set environment variables early
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# Fix Git ownership issue as root first
+USER root
+RUN git config --system --add safe.directory /sdks/flutter
+
 # Create non-root user
 RUN useradd -m flutteruser && \
     mkdir -p /home/flutteruser/app && \
-    chown -R flutteruser:flutteruser /home/flutteruser
+    chown -R flutteruser:flutteruser /home/flutteruser && \
+    # Fix permissions for Flutter SDK
+    chown -R flutteruser:flutteruser /sdks/flutter && \
+    chmod -R 755 /sdks/flutter
 
-WORKDIR /home/flutteruser/app
-
-# Install JDK 17 as root user
-USER root
+# Install JDK 17
 RUN apt-get update && \
     apt-get install -y openjdk-17-jdk && \
     rm -rf /var/lib/apt/lists/*
 
-# Fix the Git ownership issue
-RUN git config --global --add safe.directory /sdks/flutter
-
-# Set Java home path for Gradle
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-
-# Switch to flutteruser
+# Switch to flutteruser and set working directory
 USER flutteruser
+WORKDIR /home/flutteruser/app
+
+# Configure Git for flutteruser
+RUN git config --global --add safe.directory /sdks/flutter
 
 # Copy pubspec files first
 COPY --chown=flutteruser:flutteruser pubspec.yaml ./
@@ -29,7 +34,7 @@ COPY --chown=flutteruser:flutteruser pubspec.lock* ./
 # Get dependencies
 RUN flutter pub get
 
-# Copy the rest of the application (excluding properties files we'll create)
+# Copy the rest of the application
 COPY --chown=flutteruser:flutteruser . .
 
 # Create proper Linux path configuration files
