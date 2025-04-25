@@ -7,11 +7,14 @@ RUN useradd -m flutteruser && \
 
 WORKDIR /home/flutteruser/app
 
-# Install JDK 17 as root user
+# Install JDK 17 as root user and fix permissions
 USER root
 RUN apt-get update && \
     apt-get install -y openjdk-17-jdk && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    # Fix permissions for Flutter SDK
+    chown -R flutteruser:flutteruser /sdks/flutter && \
+    chmod -R 755 /sdks/flutter
 
 # Switch to flutteruser
 USER flutteruser
