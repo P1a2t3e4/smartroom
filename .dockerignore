@@ -1,9 +1,45 @@
+# Development files
 .dart_tool/
 .git/
 .github/
 .gitignore
 .idea/
 .vscode/
-build/
-.packages
 *.iml
+*.swp
+*.swo
+*.log
+
+# Build outputs
+build/
+android/app/release/
+android/app/debug/
+ios/
+
+# Dependency files (handled by pubspec.lock)
+.packages
+pubspec.lock
+
+# Environment files
+.env
+.env.*
+.env.local
+
+# Flutter/Dart specific
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter/
+.dartServer/
+
+# Android specific
+android/gradlew
+android/gradlew.bat
+android/gradle/
+android/local.properties
+android/.gradle/
+
+# iOS specific
+ios/.symlinks/
+ios/Pods/
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/Generated.xcconfig
