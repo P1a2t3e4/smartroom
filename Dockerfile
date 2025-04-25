@@ -18,13 +18,13 @@ RUN sudo apt-get update && \
     sudo rm -rf /var/lib/apt/lists/*
 
 # Copy dependency files first to leverage Docker cache
-COPY --chown=flutteruser pubspec.yaml pubspec.lock ./
+COPY pubspec.yaml pubspec.lock ./
 
 # Install dependencies
 RUN flutter pub get
 
 # Copy the rest of the project files
-COPY --chown=flutteruser . .
+COPY . .
 
 # Configure Gradle with optimized settings
 RUN mkdir -p ~/.gradle && \
@@ -43,5 +43,4 @@ FROM alpine:latest
 COPY --from=builder /home/flutteruser/app/build/app/outputs/flutter-apk/app-release.apk /app/app-release.apk
 
 # Command to run your app (if needed)
-# Alternatively, you might just want to expose the built APK
 CMD ["echo", "Build complete. APK available at /app/app-release.apk"]
