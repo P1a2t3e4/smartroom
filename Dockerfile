@@ -13,11 +13,11 @@ RUN apt-get update && \
     apt-get install -y openjdk-17-jdk && \
     rm -rf /var/lib/apt/lists/*
 
-# Fix the Git ownership issue
-RUN git config --global --add safe.directory /sdks/flutter
-
 # Switch to flutteruser
 USER flutteruser
+
+# Fix the Git ownership issue as flutteruser
+RUN git config --global --add safe.directory /sdks/flutter
 
 # Copy pubspec files first
 COPY --chown=flutteruser:flutteruser pubspec.yaml ./
